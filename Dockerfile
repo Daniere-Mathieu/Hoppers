@@ -1,5 +1,7 @@
 FROM python:3.12-slim AS base
 
+LABEL org.opencontainers.image.source=https://github.com/daniere-mathieu/hoppers
+
 # Prevent Python from writing .pyc files and enable unbuffered output
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
