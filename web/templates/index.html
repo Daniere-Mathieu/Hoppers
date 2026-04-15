@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hop Emote Generator</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header>
+    <h1>Hop Emote Generator</h1>
+    <p class="subtitle">Upload images, tweak parameters, generate animated hopping emotes.</p>
+  </header>
+
+  <main>
+    <!-- Upload zone -->
+    <section id="upload-section">
+      <div id="drop-zone">
+        <p>Drag &amp; drop images here</p>
+        <p class="hint">or</p>
+        <label class="file-btn">
+          Browse files
+          <input type="file" id="file-input" multiple accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/tiff">
+        </label>
+        <p class="hint">PNG, JPG, WebP, GIF, BMP &middot; Max 20 files</p>
+      </div>
+      <div id="file-list"></div>
+    </section>
+
+    <!-- Parameters -->
+    <section id="params-section">
+      <h2>Parameters</h2>
+      <div class="params-grid">
+        <div class="param-group">
+          <label>Format</label>
+          <div class="radio-group">
+            <label><input type="radio" name="format" value="gif" checked> GIF</label>
+            <label><input type="radio" name="format" value="apng"> APNG</label>
+          </div>
+        </div>
+        <div class="param-group">
+          <label for="size">Size</label>
+          <input type="number" id="size" value="128" min="32" max="512" step="1">
+          <span class="unit">px</span>
+        </div>
+        <div class="param-group">
+          <label for="frames">Frames</label>
+          <input type="number" id="frames" value="20" min="4" max="60" step="1">
+        </div>
+        <div class="param-group">
+          <label for="speed">Speed</label>
+          <input type="number" id="speed" value="0.7" min="0.1" max="3.0" step="0.1">
+          <span class="unit">sec</span>
+        </div>
+        <div class="param-group">
+          <label for="height">Height</label>
+          <input type="number" id="height" value="14" min="0" max="64" step="1">
+          <span class="unit">px</span>
+        </div>
+        <div class="param-group">
+          <label for="angle">Angle</label>
+          <input type="number" id="angle" value="3.5" min="0" max="15" step="0.5">
+          <span class="unit">deg</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Generate -->
+    <section id="action-section">
+      <button id="generate-btn" disabled>Generate</button>
+      <span id="status-text"></span>
+    </section>
+
+    <!-- Results -->
+    <section id="results-section" hidden>
+      <div class="results-header">
+        <h2>Results</h2>
+        <button id="download-all-btn" hidden>Download All</button>
+      </div>
+      <div id="results-grid"></div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

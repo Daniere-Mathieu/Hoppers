@@ -1,0 +1,31 @@
+services:
+  hoppers:
+    image: ghcr.io/daniere-mathieu/hoppers:main
+    # build: .    # uncomment to build locally instead of pulling from GHCR
+    container_name: hoppers
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    tmpfs:
+      # RAM-backed temp dir: fast, auto-cleared on restart, 500 MB cap.
+      # mode 1777 (sticky) so the non-root container user can write.
+      - /app/tmp:size=500m,mode=1777
+    environment:
+      - HOPPERS_TMP=/app/tmp
+      - HOPPERS_TMP_MAX_AGE=300   # purge temp files older than 5 min
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 1g
+        reservations:
+          memory: 256m
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    security_opt:
+      - no-new-privileges:true
+    read_only: true        # filesystem is read-only except for the tmpfs mount

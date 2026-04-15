@@ -1,0 +1,16 @@
+.git
+.github
+__pycache__
+*.pyc
+*.pyo
+.env
+.venv
+venv
+*.egg-info
+dist
+build
+*.md
+LICENSE
+.dockerignore
+Dockerfile
+docker-compose*.yml
