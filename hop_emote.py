@@ -1,14 +1,15 @@
 """
 Hop Emote Generator
 ───────────────────
-Takes any image and applies a left-right hop animation.
-Outputs a 128x128 animated image ready for Discord emotes.
+Takes any image and applies an animation (hop, spin, shake, bounce, pulse).
+Outputs an animated image ready for Discord emotes.
 
 Supports GIF and APNG output. Use APNG (--format apng) for full color
 and smooth transparency — no palette artifacts.
 
 Usage:
     python hop_emote.py input.png
+    python hop_emote.py input.png --animation spin
     python hop_emote.py input.png --format apng
     python hop_emote.py input.png -o output.gif --size 128 --speed 0.7
 """
@@ -49,10 +50,9 @@ def generate_frames(
     jump_height: int = 14,
     max_angle: float = 3.5,
 ) -> list[Image.Image]:
-    """Generate all RGBA animation frames."""
+    """Generate all RGBA animation frames for the hop animation."""
     sprite = Image.open(input_path).convert("RGBA")
 
-    # Scale sprite to fit inside the canvas with room for the jump
     max_sprite = int(canvas_size * 0.7)
     sprite.thumbnail((max_sprite, max_sprite), Image.LANCZOS)
 
@@ -72,6 +72,145 @@ def generate_frames(
         frames.append(make_frame(sprite, canvas_size, angle, y_offset))
 
     return frames
+
+
+ANIMATION_TYPES = ["hop", "spin", "shake", "bounce", "pulse"]
+
+
+def _load_sprite(input_path: str, canvas_size: int, scale: float = 0.7) -> Image.Image:
+    sprite = Image.open(input_path).convert("RGBA")
+    max_sprite = int(canvas_size * scale)
+    sprite.thumbnail((max_sprite, max_sprite), Image.LANCZOS)
+    return sprite
+
+
+def generate_frames_spin(
+    input_path: str,
+    canvas_size: int = 128,
+    num_frames: int = 20,
+    **_kwargs,
+) -> list[Image.Image]:
+    """Full 360-degree rotation around the center."""
+    sprite = _load_sprite(input_path, canvas_size)
+    sw, sh = sprite.size
+
+    frames = []
+    for i in range(num_frames):
+        angle = (i / num_frames) * 360.0
+        rotated = sprite.rotate(
+            -angle,
+            resample=Image.BICUBIC,
+            expand=True,
+            center=(sw // 2, sh // 2),
+        )
+        frame = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+        rx, ry = rotated.size
+        paste_x = (canvas_size - rx) // 2
+        paste_y = (canvas_size - ry) // 2
+        frame.paste(rotated, (paste_x, paste_y), rotated)
+        frames.append(frame)
+
+    return frames
+
+
+def generate_frames_shake(
+    input_path: str,
+    canvas_size: int = 128,
+    num_frames: int = 20,
+    intensity: int = 6,
+    **_kwargs,
+) -> list[Image.Image]:
+    """Rapid horizontal shaking — like a vibrating notification."""
+    sprite = _load_sprite(input_path, canvas_size)
+    sw, sh = sprite.size
+
+    frames = []
+    for i in range(num_frames):
+        t = i / num_frames
+        x_offset = int(math.sin(t * math.pi * 6) * intensity)
+
+        frame = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+        paste_x = (canvas_size - sw) // 2 + x_offset
+        bottom_margin = max(6, int(canvas_size * 0.06))
+        paste_y = canvas_size - sh - bottom_margin
+        frame.paste(sprite, (paste_x, paste_y), sprite)
+        frames.append(frame)
+
+    return frames
+
+
+def generate_frames_bounce(
+    input_path: str,
+    canvas_size: int = 128,
+    num_frames: int = 20,
+    jump_height: int = 20,
+    squash: float = 0.3,
+    **_kwargs,
+) -> list[Image.Image]:
+    """Vertical bounce with squash-and-stretch on landing."""
+    sprite = _load_sprite(input_path, canvas_size)
+    sw, sh = sprite.size
+
+    frames = []
+    for i in range(num_frames):
+        t = i / num_frames
+        bounce_val = abs(math.sin(t * math.pi))
+        y_offset = int(-bounce_val * jump_height)
+
+        landing_proximity = 1.0 - bounce_val
+        squash_factor = 1.0 + squash * (landing_proximity ** 3)
+        stretch_factor = 1.0 / squash_factor
+
+        new_w = max(1, int(sw * squash_factor))
+        new_h = max(1, int(sh * stretch_factor))
+        squashed = sprite.resize((new_w, new_h), Image.LANCZOS)
+
+        frame = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+        paste_x = (canvas_size - new_w) // 2
+        bottom_margin = max(6, int(canvas_size * 0.06))
+        paste_y = canvas_size - new_h - bottom_margin + y_offset
+        frame.paste(squashed, (paste_x, paste_y), squashed)
+        frames.append(frame)
+
+    return frames
+
+
+def generate_frames_pulse(
+    input_path: str,
+    canvas_size: int = 128,
+    num_frames: int = 20,
+    scale_amount: float = 0.2,
+    **_kwargs,
+) -> list[Image.Image]:
+    """Rhythmic scale-up / scale-down heartbeat effect."""
+    sprite = _load_sprite(input_path, canvas_size, scale=0.55)
+    sw, sh = sprite.size
+
+    frames = []
+    for i in range(num_frames):
+        t = i / num_frames
+        scale = 1.0 + scale_amount * abs(math.sin(t * math.pi))
+
+        new_w = max(1, int(sw * scale))
+        new_h = max(1, int(sh * scale))
+        scaled = sprite.resize((new_w, new_h), Image.LANCZOS)
+
+        frame = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+        paste_x = (canvas_size - new_w) // 2
+        paste_y = (canvas_size - new_h) // 2
+        frame.paste(scaled, (paste_x, paste_y), scaled)
+        frames.append(frame)
+
+    return frames
+
+
+GENERATORS = {
+    "hop": generate_frames,
+    "spin": generate_frames_spin,
+    "shake": generate_frames_shake,
+    "bounce": generate_frames_bounce,
+    "pulse": generate_frames_pulse,
+}
 
 
 def save_gif(frames: list[Image.Image], output_path: str, frame_duration: int, canvas_size: int = 128):
@@ -121,9 +260,11 @@ def save_apng(frames: list[Image.Image], output_path: str, frame_duration: int):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate a hopping emote from any image.")
+    parser = argparse.ArgumentParser(description="Generate an animated emote from any image.")
     parser.add_argument("input", help="Path to input image (PNG, WebP, JPG, etc.)")
-    parser.add_argument("-o", "--output", default=None, help="Output path (default: <input>_hop.<format>)")
+    parser.add_argument("-o", "--output", default=None, help="Output path (default: <input>_<animation>.<format>)")
+    parser.add_argument("--animation", choices=ANIMATION_TYPES, default="hop",
+                        help="Animation type (default: hop)")
     parser.add_argument("--format", choices=["gif", "apng"], default="gif",
                         help="Output format: gif (small, palette colors) or apng (full color, smooth transparency)")
     parser.add_argument("--size", type=int, default=128, help="Canvas size in px (default: 128)")
@@ -139,11 +280,12 @@ def main():
         sys.exit(1)
 
     ext = "png" if args.format == "apng" else "gif"
-    output = args.output or f"{os.path.splitext(args.input)[0]}_hop.{ext}"
+    output = args.output or f"{os.path.splitext(args.input)[0]}_{args.animation}.{ext}"
 
     frame_duration = int((args.speed * 1000) / args.frames)
 
-    frames = generate_frames(
+    generator = GENERATORS[args.animation]
+    frames = generator(
         input_path=args.input,
         canvas_size=args.size,
         num_frames=args.frames,
@@ -158,6 +300,7 @@ def main():
 
     size_kb = os.path.getsize(output) / 1024
     fmt_label = "APNG" if args.format == "apng" else "GIF"
+    print(f"Animation: {args.animation}")
     print(f"Format:    {fmt_label}")
     print(f"Generated: {output}")
     print(f"Size:      {size_kb:.1f} KB {'(OK for Discord)' if size_kb < 256 else '(WARNING: over 256 KB Discord limit!)'}")

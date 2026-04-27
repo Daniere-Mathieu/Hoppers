@@ -19,7 +19,7 @@ from flask import Flask, jsonify, render_template, request
 
 # Import the core generator from the parent directory
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-from hop_emote import generate_frames, save_apng, save_gif  # noqa: E402
+from hop_emote import ANIMATION_TYPES, GENERATORS, save_apng, save_gif  # noqa: E402
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 50 * 1024 * 1024  # 50 MB
@@ -81,17 +81,26 @@ def parse_params(form) -> dict:
     if fmt not in ("gif", "apng"):
         fmt = "gif"
 
+    animation = form.get("animation", "hop")
+    if animation not in ANIMATION_TYPES:
+        animation = "hop"
+
     size = clamp(int(form.get("size", 128)), *PARAM_BOUNDS["size"][:2])
     frames = clamp(int(form.get("frames", 20)), *PARAM_BOUNDS["frames"][:2])
     speed = clamp(float(form.get("speed", 0.7)), *PARAM_BOUNDS["speed"][:2])
     height = clamp(int(form.get("height", 14)), *PARAM_BOUNDS["height"][:2])
     angle = clamp(float(form.get("angle", 3.5)), *PARAM_BOUNDS["angle"][:2])
 
-    return dict(fmt=fmt, size=size, frames=frames, speed=speed, height=height, angle=angle)
+    return dict(fmt=fmt, animation=animation, size=size, frames=frames, speed=speed, height=height, angle=angle)
 
 
 @app.route("/")
-def index():
+def landing():
+    return render_template("landing.html")
+
+
+@app.route("/app")
+def generator():
     return render_template("index.html")
 
 
@@ -140,7 +149,8 @@ def generate():
                 tmp_out_path = tmp_out.name
 
             # Generate animation
-            anim_frames = generate_frames(
+            generator = GENERATORS[params["animation"]]
+            anim_frames = generator(
                 input_path=tmp_in_path,
                 canvas_size=params["size"],
                 num_frames=params["frames"],
@@ -160,7 +170,7 @@ def generate():
 
             size_kb = os.path.getsize(tmp_out_path) / 1024
             base_name = os.path.splitext(f.filename)[0]
-            out_filename = f"{base_name}_hop{out_ext}"
+            out_filename = f"{base_name}_{params['animation']}{out_ext}"
 
             results.append({
                 "filename": out_filename,

@@ -3,83 +3,139 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hop Emote Generator</title>
+  <title>Hoppers — Emote Animation Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-  <header>
-    <h1>Hop Emote Generator</h1>
-    <p class="subtitle">Upload images, tweak parameters, generate animated hopping emotes.</p>
-  </header>
 
-  <main>
-    <!-- Upload zone -->
-    <section id="upload-section">
-      <div id="drop-zone">
-        <p>Drag &amp; drop images here</p>
-        <p class="hint">or</p>
-        <label class="file-btn">
-          Browse files
-          <input type="file" id="file-input" multiple accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/tiff">
-        </label>
-        <p class="hint">PNG, JPG, WebP, GIF, BMP &middot; Max 20 files</p>
-      </div>
-      <div id="file-list"></div>
-    </section>
+  <!-- Animated background blobs -->
+  <div class="bg-blobs" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
 
-    <!-- Parameters -->
-    <section id="params-section">
-      <h2>Parameters</h2>
-      <div class="params-grid">
-        <div class="param-group">
-          <label>Format</label>
-          <div class="radio-group">
-            <label><input type="radio" name="format" value="gif" checked> GIF</label>
-            <label><input type="radio" name="format" value="apng"> APNG</label>
+  <!-- Navbar -->
+  <nav class="nav-bar">
+    <a href="/" class="nav-logo">Hoppers</a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/app" class="nav-active">App</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <header>
+      <h1>Hoppers</h1>
+      <p class="subtitle">Upload your images, pick an animation style, and generate Discord-ready animated emotes in seconds.</p>
+    </header>
+
+    <main>
+      <!-- Upload zone -->
+      <section class="glass-card" id="upload-section">
+        <div id="drop-zone">
+          <div class="drop-icon">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="17 8 12 3 7 8"/>
+              <line x1="12" y1="3" x2="12" y2="15"/>
+            </svg>
+          </div>
+          <p class="drop-title">Drag & drop images here</p>
+          <p class="drop-hint">or</p>
+          <label class="btn btn-accent file-btn">
+            Browse files
+            <input type="file" id="file-input" multiple accept="image/png,image/jpeg,image/webp,image/gif,image/bmp,image/tiff">
+          </label>
+          <p class="drop-hint">PNG, JPG, WebP, GIF, BMP &middot; Max 20 files</p>
+        </div>
+        <div id="file-list"></div>
+      </section>
+
+      <!-- Parameters -->
+      <section class="glass-card" id="params-section">
+        <h2>Animation</h2>
+        <div class="pill-group" id="animation-pills">
+          <label class="pill"><input type="radio" name="animation" value="hop" checked><span>Hop</span></label>
+          <label class="pill"><input type="radio" name="animation" value="spin"><span>Spin</span></label>
+          <label class="pill"><input type="radio" name="animation" value="shake"><span>Shake</span></label>
+          <label class="pill"><input type="radio" name="animation" value="bounce"><span>Bounce</span></label>
+          <label class="pill"><input type="radio" name="animation" value="pulse"><span>Pulse</span></label>
+        </div>
+
+        <h2>Format</h2>
+        <div class="pill-group" id="format-pills">
+          <label class="pill"><input type="radio" name="format" value="gif" checked><span>GIF</span></label>
+          <label class="pill"><input type="radio" name="format" value="apng"><span>APNG</span></label>
+        </div>
+
+        <h2>Settings</h2>
+        <div class="params-grid">
+          <div class="param-group">
+            <label for="size">Size <span class="range-hint">32 – 512</span></label>
+            <div class="input-row">
+              <input type="number" id="size" value="128" min="32" max="512" step="1">
+              <span class="unit">px</span>
+            </div>
+            <span class="input-warn" id="size-warn"></span>
+          </div>
+          <div class="param-group">
+            <label for="frames">Frames <span class="range-hint">4 – 60</span></label>
+            <div class="input-row">
+              <input type="number" id="frames" value="20" min="4" max="60" step="1">
+            </div>
+            <span class="input-warn" id="frames-warn"></span>
+          </div>
+          <div class="param-group">
+            <label for="speed">Speed <span class="range-hint">0.1 – 3.0</span></label>
+            <div class="input-row">
+              <input type="number" id="speed" value="0.7" min="0.1" max="3.0" step="0.1">
+              <span class="unit">sec</span>
+            </div>
+            <span class="input-warn" id="speed-warn"></span>
+          </div>
+          <div class="param-group" data-for="hop bounce">
+            <label for="height">Height <span class="range-hint">0 – 64</span></label>
+            <div class="input-row">
+              <input type="number" id="height" value="14" min="0" max="64" step="1">
+              <span class="unit">px</span>
+            </div>
+            <span class="input-warn" id="height-warn"></span>
+          </div>
+          <div class="param-group" data-for="hop">
+            <label for="angle">Angle <span class="range-hint">0 – 15</span></label>
+            <div class="input-row">
+              <input type="number" id="angle" value="3.5" min="0" max="15" step="0.5">
+              <span class="unit">deg</span>
+            </div>
+            <span class="input-warn" id="angle-warn"></span>
           </div>
         </div>
-        <div class="param-group">
-          <label for="size">Size</label>
-          <input type="number" id="size" value="128" min="32" max="512" step="1">
-          <span class="unit">px</span>
-        </div>
-        <div class="param-group">
-          <label for="frames">Frames</label>
-          <input type="number" id="frames" value="20" min="4" max="60" step="1">
-        </div>
-        <div class="param-group">
-          <label for="speed">Speed</label>
-          <input type="number" id="speed" value="0.7" min="0.1" max="3.0" step="0.1">
-          <span class="unit">sec</span>
-        </div>
-        <div class="param-group">
-          <label for="height">Height</label>
-          <input type="number" id="height" value="14" min="0" max="64" step="1">
-          <span class="unit">px</span>
-        </div>
-        <div class="param-group">
-          <label for="angle">Angle</label>
-          <input type="number" id="angle" value="3.5" min="0" max="15" step="0.5">
-          <span class="unit">deg</span>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <!-- Generate -->
-    <section id="action-section">
-      <button id="generate-btn" disabled>Generate</button>
-      <span id="status-text"></span>
-    </section>
+      <!-- Generate -->
+      <section id="action-section">
+        <button class="btn btn-generate" id="generate-btn" disabled>Generate</button>
+        <span id="status-text"></span>
+      </section>
 
-    <!-- Results -->
-    <section id="results-section" hidden>
-      <div class="results-header">
-        <h2>Results</h2>
-        <button id="download-all-btn" hidden>Download All</button>
-      </div>
-      <div id="results-grid"></div>
-    </section>
-  </main>
+      <!-- Results -->
+      <section class="glass-card" id="results-section" hidden>
+        <div class="results-header">
+          <h2>Results</h2>
+          <button class="btn btn-outline" id="download-all-btn" hidden>Download All</button>
+        </div>
+        <div id="results-grid"></div>
+      </section>
+    </main>
+
+    <footer>
+      <p>Hoppers &mdash; open-source emote animation generator</p>
+    </footer>
+  </div>
 
   <script src="/static/app.js"></script>
 </body>

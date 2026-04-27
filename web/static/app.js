@@ -10,6 +10,73 @@ const resultsSection = document.getElementById("results-section");
 const resultsGrid  = document.getElementById("results-grid");
 const downloadAllBtn = document.getElementById("download-all-btn");
 
+/* ── Input validation ───────────────────────────── */
+const PARAM_BOUNDS = {
+  size:   { min: 32,  max: 512,  step: 1   },
+  frames: { min: 4,   max: 60,   step: 1   },
+  speed:  { min: 0.1, max: 3.0,  step: 0.1 },
+  height: { min: 0,   max: 64,   step: 1   },
+  angle:  { min: 0,   max: 15,   step: 0.5 },
+};
+
+function validateInput(id) {
+  const input = document.getElementById(id);
+  const warn = document.getElementById(id + "-warn");
+  if (!input || !warn) return;
+
+  const bounds = PARAM_BOUNDS[id];
+  const val = parseFloat(input.value);
+
+  if (isNaN(val)) {
+    warn.textContent = "Enter a number";
+    input.classList.add("invalid");
+    return;
+  }
+  if (val < bounds.min) {
+    warn.textContent = `Min is ${bounds.min}`;
+    input.classList.add("invalid");
+    return;
+  }
+  if (val > bounds.max) {
+    warn.textContent = `Max is ${bounds.max}`;
+    input.classList.add("invalid");
+    return;
+  }
+
+  warn.textContent = "";
+  input.classList.remove("invalid");
+}
+
+for (const id of Object.keys(PARAM_BOUNDS)) {
+  const input = document.getElementById(id);
+  if (input) {
+    input.addEventListener("input", () => validateInput(id));
+    input.addEventListener("change", () => {
+      const bounds = PARAM_BOUNDS[id];
+      let val = parseFloat(input.value);
+      if (isNaN(val)) val = bounds.min;
+      val = Math.max(bounds.min, Math.min(bounds.max, val));
+      val = Math.round(val / bounds.step) * bounds.step;
+      input.value = parseFloat(val.toFixed(4));
+      validateInput(id);
+    });
+  }
+}
+
+/* ── Animation type switching ────────────────────── */
+function updateAnimationParams() {
+  const anim = document.querySelector('input[name="animation"]:checked').value;
+  document.querySelectorAll(".param-group[data-for]").forEach(group => {
+    const targets = group.getAttribute("data-for").split(" ");
+    group.style.display = targets.includes(anim) ? "" : "none";
+  });
+}
+
+document.querySelectorAll('input[name="animation"]').forEach(radio => {
+  radio.addEventListener("change", updateAnimationParams);
+});
+updateAnimationParams();
+
 /* ── File selection ──────────────────────────────── */
 fileInput.addEventListener("change", () => {
   addFiles(fileInput.files);
@@ -63,7 +130,7 @@ function renderFileList() {
 
     const btn = document.createElement("button");
     btn.className = "remove-btn";
-    btn.textContent = "\u00d7";
+    btn.textContent = "×";
     btn.title = "Remove";
     btn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -89,16 +156,18 @@ generateBtn.addEventListener("click", async () => {
 
   // Collect parameters
   const fmt = document.querySelector('input[name="format"]:checked').value;
+  const anim = document.querySelector('input[name="animation"]:checked').value;
   formData.append("format", fmt);
+  formData.append("animation", anim);
   for (const id of ["size", "frames", "speed", "height", "angle"]) {
     formData.append(id, document.getElementById(id).value);
   }
 
   // UI loading state
   generateBtn.classList.add("loading");
-  generateBtn.textContent = "Generating\u2026";
+  generateBtn.textContent = "Generating…";
   generateBtn.disabled = true;
-  statusText.textContent = `Processing ${selectedFiles.length} image${selectedFiles.length > 1 ? "s" : ""}\u2026`;
+  statusText.textContent = `Processing ${selectedFiles.length} image${selectedFiles.length > 1 ? "s" : ""}…`;
   resultsSection.hidden = true;
 
   try {
@@ -111,7 +180,7 @@ generateBtn.addEventListener("click", async () => {
     }
 
     renderResults(data.results);
-    statusText.textContent = `Done \u2013 ${data.results.length} result${data.results.length > 1 ? "s" : ""}`;
+    statusText.textContent = `Done – ${data.results.length} result${data.results.length > 1 ? "s" : ""}`;
   } catch (err) {
     statusText.textContent = "Request failed: " + err.message;
   } finally {

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hoppers — Animated Emote Generator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- Animated background blobs -->
+  <div class="bg-blobs" aria-hidden="true">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="nav-bar">
+    <a href="/" class="nav-logo">Hoppers</a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#animations">Animations</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="/app" class="btn btn-accent btn-sm">Open App</a>
+    </div>
+  </nav>
+
+  <div class="container container-landing">
+
+    <!-- Hero -->
+    <section class="hero">
+      <h1 class="hero-title">Turn any image into<br>animated emotes</h1>
+      <p class="hero-sub">The open-source emote animation generator. Upload, pick a style, and get Discord-ready GIFs and APNGs in seconds &mdash; no design skills needed.</p>
+      <div class="hero-actions">
+        <a href="/app" class="btn btn-hero">Start Creating</a>
+        <a href="#features" class="btn btn-ghost">Learn More</a>
+      </div>
+
+      <!-- Animated preview cards -->
+      <div class="hero-preview">
+        <div class="preview-card preview-card-1">
+          <div class="preview-emoji">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+          </div>
+          <span class="preview-label">Hop</span>
+        </div>
+        <div class="preview-card preview-card-2">
+          <div class="preview-emoji">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 12a9 9 0 11-6.219-8.56"/><polyline points="21 3 21 9 15 9"/></svg>
+          </div>
+          <span class="preview-label">Spin</span>
+        </div>
+        <div class="preview-card preview-card-3">
+          <div class="preview-emoji">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 12h4l3-9 4 18 3-9h4"/></svg>
+          </div>
+          <span class="preview-label">Shake</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="landing-section">
+      <h2 class="section-title">Why Hoppers?</h2>
+      <div class="features-grid">
+        <div class="glass-card feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </div>
+          <h3>Instant Generation</h3>
+          <p>Upload your image and get an animated emote back in seconds. No waiting, no queues &mdash; everything runs right in your browser session.</p>
+        </div>
+        <div class="glass-card feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </div>
+          <h3>Batch Processing</h3>
+          <p>Upload up to 20 images at once and animate them all with the same settings. Download individually or grab them all in one click.</p>
+        </div>
+        <div class="glass-card feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="2.5"/><path d="M17 2H7a5 5 0 00-5 5v10a5 5 0 005 5h10a5 5 0 005-5V7a5 5 0 00-5-5z"/><path d="M2 17l5-5c.928-.893 2.072-.893 3 0l5 5"/><path d="M14 14l1-1c.928-.893 2.072-.893 3 0l4 4"/></svg>
+          </div>
+          <h3>Any Image Format</h3>
+          <p>Works with PNG, JPG, WebP, GIF, BMP, and TIFF. Output as GIF for maximum compatibility or APNG for full-color, artifact-free results.</p>
+        </div>
+        <div class="glass-card feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          </div>
+          <h3>Full Control</h3>
+          <p>Tweak canvas size, frame count, speed, jump height, and tilt angle. Every parameter has sensible defaults and validated ranges.</p>
+        </div>
+        <div class="glass-card feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+          </div>
+          <h3>Discord Ready</h3>
+          <p>Output is sized and optimized for Discord emotes. Warnings appear if the file exceeds the 256 KB limit so you can adjust before uploading.</p>
+        </div>
+        <div class="glass-card feature-card">
+          <div class="feature-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <h3>Open Source</h3>
+          <p>Fully open-source and self-hostable. Run it locally with Python, deploy with Docker, or use the hosted version &mdash; your images never leave the server.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Animations showcase -->
+    <section id="animations" class="landing-section">
+      <h2 class="section-title">5 Animation Styles</h2>
+      <p class="section-sub">Each animation is tuned for emote-sized sprites. Pick one, tweak the settings, and hit generate.</p>
+      <div class="anim-grid">
+        <div class="glass-card anim-card">
+          <div class="anim-icon anim-icon-hop"></div>
+          <h3>Hop</h3>
+          <p>Left-right tilt with a vertical bounce. The classic emote wiggle.</p>
+        </div>
+        <div class="glass-card anim-card">
+          <div class="anim-icon anim-icon-spin"></div>
+          <h3>Spin</h3>
+          <p>Full 360-degree rotation around the center. Satisfying and hypnotic.</p>
+        </div>
+        <div class="glass-card anim-card">
+          <div class="anim-icon anim-icon-shake"></div>
+          <h3>Shake</h3>
+          <p>Rapid horizontal vibration. Like a buzzing notification.</p>
+        </div>
+        <div class="glass-card anim-card">
+          <div class="anim-icon anim-icon-bounce"></div>
+          <h3>Bounce</h3>
+          <p>Vertical bounce with squash-and-stretch on landing. Cartoonish energy.</p>
+        </div>
+        <div class="glass-card anim-card">
+          <div class="anim-icon anim-icon-pulse"></div>
+          <h3>Pulse</h3>
+          <p>Rhythmic scale-up and scale-down. A heartbeat effect.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how-it-works" class="landing-section">
+      <h2 class="section-title">How It Works</h2>
+      <div class="steps-row">
+        <div class="step">
+          <div class="step-number">1</div>
+          <h3>Upload</h3>
+          <p>Drag and drop your images or browse your files. Supports batch upload up to 20 files.</p>
+        </div>
+        <div class="step-arrow" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <h3>Customize</h3>
+          <p>Choose an animation style, output format, and fine-tune the parameters to your liking.</p>
+        </div>
+        <div class="step-arrow" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <h3>Download</h3>
+          <p>Hit generate and download your animated emotes. Ready to upload to Discord, Slack, or anywhere.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="landing-section cta-section">
+      <div class="glass-card cta-card">
+        <h2 class="cta-title">Ready to animate?</h2>
+        <p class="cta-sub">No sign-up, no watermark, no cost. Just animated emotes.</p>
+        <a href="/app" class="btn btn-hero">Open the Generator</a>
+      </div>
+    </section>
+
+    <footer>
+      <p>Hoppers &mdash; open-source emote animation generator</p>
+    </footer>
+  </div>
+
+</body>
+</html>
