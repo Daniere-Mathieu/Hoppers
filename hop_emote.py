@@ -1,7 +1,7 @@
 """
 Hop Emote Generator
 ───────────────────
-Takes any image and applies an animation (hop, spin, shake, bounce, pulse).
+Takes any image and applies an animation.
 Outputs an animated image ready for Discord emotes.
 
 Supports GIF and APNG output. Use APNG (--format apng) for full color
@@ -49,6 +49,7 @@ def generate_frames(
     num_frames: int = 20,
     jump_height: int = 14,
     max_angle: float = 3.5,
+    **_kwargs,
 ) -> list[Image.Image]:
     """Generate all RGBA animation frames for the hop animation."""
     sprite = Image.open(input_path).convert("RGBA")
@@ -74,7 +75,11 @@ def generate_frames(
     return frames
 
 
-ANIMATION_TYPES = ["hop", "spin", "shake", "bounce", "pulse"]
+ANIMATION_TYPES = [
+    "hop", "spin", "shake", "bounce", "pulse",
+    "swing", "jelly", "float", "zoom", "slide", "flip", "twist",
+    "custom",
+]
 
 
 def _load_sprite(input_path: str, canvas_size: int, scale: float = 0.7) -> Image.Image:
@@ -204,12 +209,273 @@ def generate_frames_pulse(
     return frames
 
 
+def generate_frames_swing(
+    input_path: str,
+    canvas_size: int = 128,
+    num_frames: int = 20,
+    max_angle: float = 15.0,
+    **_kwargs,
+) -> list[Image.Image]:
+    """Pendulum swing from a top-center pivot point."""
+    sprite = _load_sprite(input_path, canvas_size)
+    sw, sh = sprite.size
+
+    frames = []
+    for i in range(num_frames):
+        t = i / num_frames
+        angle = max_angle * math.sin(t * 2 * math.pi)
+        rotated = sprite.rotate(
+            -angle,
+            resample=Image.BICUBIC,
+            expand=True,
+            center=(sw // 2, 0),
+        )
+        frame = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+        rx, ry = rotated.size
+        paste_x = (canvas_size - rx) // 2
+        paste_y = max(2, (canvas_size - ry) // 4)
+        frame.paste(rotated, (paste_x, paste_y), rotated)
+        frames.append(frame)
+
+    return frames
+
+
+def generate_frames_jelly(
+    input_path: str,
+    canvas_size: int = 128,
+    num_frames: int = 20,
+    intensity: float = 0.15,
+    **_kwargs,
+) -> list[Image.Image]:
+    """Wobbly jelly deformation — alternating X/Y squash."""
+    sprite = _load_sprite(input_path, canvas_size)
+    sw, sh = sprite.size
+
+    frames = []
+    for i in range(num_frames):
+        t = i / num_frames
+        sx = 1.0 + intensity * math.sin(t * 2 * math.pi)
+        sy = 1.0 - intensity * math.sin(t * 2 * math.pi)
+
+        new_w = max(1, int(sw * sx))
+        new_h = max(1, int(sh * sy))
+        deformed = sprite.resize((new_w, new_h), Image.LANCZOS)
+
+        frame = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+        paste_x = (canvas_size - new_w) // 2
+        bottom_margin = max(6, int(canvas_size * 0.06))
+        paste_y = canvas_size - new_h - bottom_margin
+        frame.paste(deformed, (paste_x, paste_y), deformed)
+        frames.append(frame)
+
+    return frames
+
+
+def generate_frames_float(
+    input_path: str,
+    canvas_size: int = 128,
+    num_frames: int = 20,
+    amplitude: int = 10,
+    **_kwargs,
+) -> list[Image.Image]:
+    """Gentle floating up and down — dreamy hover effect."""
+    sprite = _load_sprite(input_path, canvas_size)
+    sw, sh = sprite.size
+
+    frames = []
+    for i in range(num_frames):
+        t = i / num_frames
+        y_offset = int(amplitude * math.sin(t * 2 * math.pi))
+
+        frame = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+        paste_x = (canvas_size - sw) // 2
+        paste_y = (canvas_size - sh) // 2 + y_offset
+        frame.paste(sprite, (paste_x, paste_y), sprite)
+        frames.append(frame)
+
+    return frames
+
+
+def generate_frames_zoom(
+    input_path: str,
+    canvas_size: int = 128,
+    num_frames: int = 20,
+    scale_amount: float = 0.5,
+    **_kwargs,
+) -> list[Image.Image]:
+    """Zoom in from small to full size and back."""
+    sprite = _load_sprite(input_path, canvas_size, scale=0.5)
+    sw, sh = sprite.size
+
+    frames = []
+    for i in range(num_frames):
+        t = i / num_frames
+        scale = (1.0 - scale_amount) + scale_amount * abs(math.sin(t * math.pi))
+
+        new_w = max(1, int(sw * (1.0 + scale)))
+        new_h = max(1, int(sh * (1.0 + scale)))
+        scaled = sprite.resize((new_w, new_h), Image.LANCZOS)
+
+        frame = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+        paste_x = (canvas_size - new_w) // 2
+        paste_y = (canvas_size - new_h) // 2
+        frame.paste(scaled, (paste_x, paste_y), scaled)
+        frames.append(frame)
+
+    return frames
+
+
+def generate_frames_slide(
+    input_path: str,
+    canvas_size: int = 128,
+    num_frames: int = 20,
+    distance: int = 20,
+    **_kwargs,
+) -> list[Image.Image]:
+    """Slide left and right in a smooth loop."""
+    sprite = _load_sprite(input_path, canvas_size)
+    sw, sh = sprite.size
+
+    frames = []
+    for i in range(num_frames):
+        t = i / num_frames
+        x_offset = int(distance * math.sin(t * 2 * math.pi))
+
+        frame = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+        paste_x = (canvas_size - sw) // 2 + x_offset
+        bottom_margin = max(6, int(canvas_size * 0.06))
+        paste_y = canvas_size - sh - bottom_margin
+        frame.paste(sprite, (paste_x, paste_y), sprite)
+        frames.append(frame)
+
+    return frames
+
+
+def generate_frames_flip(
+    input_path: str,
+    canvas_size: int = 128,
+    num_frames: int = 20,
+    **_kwargs,
+) -> list[Image.Image]:
+    """Horizontal flip — simulated 3D card-flip via X-axis squash."""
+    sprite = _load_sprite(input_path, canvas_size)
+    sw, sh = sprite.size
+
+    frames = []
+    for i in range(num_frames):
+        t = i / num_frames
+        scale_x = abs(math.cos(t * 2 * math.pi))
+        scale_x = max(0.05, scale_x)
+
+        new_w = max(1, int(sw * scale_x))
+        squished = sprite.resize((new_w, sh), Image.LANCZOS)
+
+        frame = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+        paste_x = (canvas_size - new_w) // 2
+        bottom_margin = max(6, int(canvas_size * 0.06))
+        paste_y = canvas_size - sh - bottom_margin
+        frame.paste(squished, (paste_x, paste_y), squished)
+        frames.append(frame)
+
+    return frames
+
+
+def generate_frames_twist(
+    input_path: str,
+    canvas_size: int = 128,
+    num_frames: int = 20,
+    max_angle: float = 25.0,
+    **_kwargs,
+) -> list[Image.Image]:
+    """Twist back and forth with a slight vertical bounce."""
+    sprite = _load_sprite(input_path, canvas_size)
+    sw, sh = sprite.size
+
+    frames = []
+    for i in range(num_frames):
+        t = i / num_frames
+        angle = max_angle * math.sin(t * 2 * math.pi)
+        y_offset = int(-6 * abs(math.sin(t * 2 * math.pi)))
+
+        rotated = sprite.rotate(
+            -angle,
+            resample=Image.BICUBIC,
+            expand=True,
+            center=(sw // 2, sh // 2),
+        )
+        frame = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+        rx, ry = rotated.size
+        paste_x = (canvas_size - rx) // 2
+        paste_y = (canvas_size - ry) // 2 + y_offset
+        frame.paste(rotated, (paste_x, paste_y), rotated)
+        frames.append(frame)
+
+    return frames
+
+
+def generate_frames_custom(
+    input_path: str,
+    canvas_size: int = 128,
+    num_frames: int = 20,
+    move_x: int = 0,
+    move_y: int = 0,
+    rotation: float = 0.0,
+    scale_amount: float = 0.0,
+    cycles: int = 1,
+    **_kwargs,
+) -> list[Image.Image]:
+    """User-defined animation loop with configurable X/Y, rotation, scale, and cycles."""
+    base_scale = 0.55 if (abs(scale_amount) > 0.01) else 0.7
+    sprite = _load_sprite(input_path, canvas_size, scale=base_scale)
+    sw, sh = sprite.size
+
+    frames = []
+    for i in range(num_frames):
+        t = i / num_frames
+        phase = t * cycles * 2 * math.pi
+
+        x_off = int(move_x * math.sin(phase))
+        y_off = int(move_y * math.sin(phase))
+
+        cur_angle = rotation * math.sin(phase)
+
+        cur_scale = 1.0 + scale_amount * abs(math.sin(phase))
+        new_w = max(1, int(sw * cur_scale))
+        new_h = max(1, int(sh * cur_scale))
+        scaled = sprite.resize((new_w, new_h), Image.LANCZOS)
+
+        if abs(cur_angle) > 0.01:
+            scaled = scaled.rotate(
+                -cur_angle,
+                resample=Image.BICUBIC,
+                expand=True,
+                center=(new_w // 2, new_h // 2),
+            )
+            new_w, new_h = scaled.size
+
+        frame = Image.new("RGBA", (canvas_size, canvas_size), (0, 0, 0, 0))
+        paste_x = (canvas_size - new_w) // 2 + x_off
+        paste_y = (canvas_size - new_h) // 2 + y_off
+        frame.paste(scaled, (paste_x, paste_y), scaled)
+        frames.append(frame)
+
+    return frames
+
+
 GENERATORS = {
     "hop": generate_frames,
     "spin": generate_frames_spin,
     "shake": generate_frames_shake,
     "bounce": generate_frames_bounce,
     "pulse": generate_frames_pulse,
+    "swing": generate_frames_swing,
+    "jelly": generate_frames_jelly,
+    "float": generate_frames_float,
+    "zoom": generate_frames_zoom,
+    "slide": generate_frames_slide,
+    "flip": generate_frames_flip,
+    "twist": generate_frames_twist,
+    "custom": generate_frames_custom,
 }
 
 
@@ -272,6 +538,11 @@ def main():
     parser.add_argument("--speed", type=float, default=0.7, help="Cycle duration in seconds (default: 0.7)")
     parser.add_argument("--height", type=int, default=14, help="Jump height in px (default: 14)")
     parser.add_argument("--angle", type=float, default=3.5, help="Max tilt angle in degrees (default: 3.5)")
+    parser.add_argument("--move-x", type=int, default=0, help="Custom: horizontal movement amplitude in px")
+    parser.add_argument("--move-y", type=int, default=0, help="Custom: vertical movement amplitude in px")
+    parser.add_argument("--rotation", type=float, default=0.0, help="Custom: rotation amplitude in degrees")
+    parser.add_argument("--scale-amount", type=float, default=0.0, help="Custom: scale oscillation amount (0-1)")
+    parser.add_argument("--cycles", type=int, default=1, help="Custom: number of loops per animation cycle")
 
     args = parser.parse_args()
 
@@ -291,6 +562,11 @@ def main():
         num_frames=args.frames,
         jump_height=args.height,
         max_angle=args.angle,
+        move_x=args.move_x,
+        move_y=args.move_y,
+        rotation=args.rotation,
+        scale_amount=args.scale_amount,
+        cycles=args.cycles,
     )
 
     if args.format == "apng":

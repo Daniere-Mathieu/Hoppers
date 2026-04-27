@@ -12,11 +12,16 @@ const downloadAllBtn = document.getElementById("download-all-btn");
 
 /* ── Input validation ───────────────────────────── */
 const PARAM_BOUNDS = {
-  size:   { min: 32,  max: 512,  step: 1   },
-  frames: { min: 4,   max: 60,   step: 1   },
-  speed:  { min: 0.1, max: 3.0,  step: 0.1 },
-  height: { min: 0,   max: 64,   step: 1   },
-  angle:  { min: 0,   max: 15,   step: 0.5 },
+  size:         { min: 32,   max: 512,  step: 1   },
+  frames:       { min: 4,    max: 60,   step: 1   },
+  speed:        { min: 0.1,  max: 3.0,  step: 0.1 },
+  height:       { min: 0,    max: 64,   step: 1   },
+  angle:        { min: 0,    max: 15,   step: 0.5 },
+  move_x:       { min: -64,  max: 64,   step: 1   },
+  move_y:       { min: -64,  max: 64,   step: 1   },
+  rotation:     { min: -180, max: 180,  step: 1   },
+  scale_amount: { min: 0,    max: 1,    step: 0.05 },
+  cycles:       { min: 1,    max: 10,   step: 1   },
 };
 
 function validateInput(id) {
@@ -159,7 +164,7 @@ generateBtn.addEventListener("click", async () => {
   const anim = document.querySelector('input[name="animation"]:checked').value;
   formData.append("format", fmt);
   formData.append("animation", anim);
-  for (const id of ["size", "frames", "speed", "height", "angle"]) {
+  for (const id of ["size", "frames", "speed", "height", "angle", "move_x", "move_y", "rotation", "scale_amount", "cycles"]) {
     formData.append(id, document.getElementById(id).value);
   }
 

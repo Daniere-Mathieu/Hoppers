@@ -64,6 +64,14 @@
           <label class="pill"><input type="radio" name="animation" value="shake"><span>Shake</span></label>
           <label class="pill"><input type="radio" name="animation" value="bounce"><span>Bounce</span></label>
           <label class="pill"><input type="radio" name="animation" value="pulse"><span>Pulse</span></label>
+          <label class="pill"><input type="radio" name="animation" value="swing"><span>Swing</span></label>
+          <label class="pill"><input type="radio" name="animation" value="jelly"><span>Jelly</span></label>
+          <label class="pill"><input type="radio" name="animation" value="float"><span>Float</span></label>
+          <label class="pill"><input type="radio" name="animation" value="zoom"><span>Zoom</span></label>
+          <label class="pill"><input type="radio" name="animation" value="slide"><span>Slide</span></label>
+          <label class="pill"><input type="radio" name="animation" value="flip"><span>Flip</span></label>
+          <label class="pill"><input type="radio" name="animation" value="twist"><span>Twist</span></label>
+          <label class="pill pill-custom"><input type="radio" name="animation" value="custom"><span>Custom</span></label>
         </div>
 
         <h2>Format</h2>
@@ -112,6 +120,45 @@
               <span class="unit">deg</span>
             </div>
             <span class="input-warn" id="angle-warn"></span>
+          </div>
+          <div class="param-group" data-for="custom">
+            <label for="move_x">Move X <span class="range-hint">-64 – 64</span></label>
+            <div class="input-row">
+              <input type="number" id="move_x" value="0" min="-64" max="64" step="1">
+              <span class="unit">px</span>
+            </div>
+            <span class="input-warn" id="move_x-warn"></span>
+          </div>
+          <div class="param-group" data-for="custom">
+            <label for="move_y">Move Y <span class="range-hint">-64 – 64</span></label>
+            <div class="input-row">
+              <input type="number" id="move_y" value="0" min="-64" max="64" step="1">
+              <span class="unit">px</span>
+            </div>
+            <span class="input-warn" id="move_y-warn"></span>
+          </div>
+          <div class="param-group" data-for="custom">
+            <label for="rotation">Rotation <span class="range-hint">-180 – 180</span></label>
+            <div class="input-row">
+              <input type="number" id="rotation" value="0" min="-180" max="180" step="1">
+              <span class="unit">deg</span>
+            </div>
+            <span class="input-warn" id="rotation-warn"></span>
+          </div>
+          <div class="param-group" data-for="custom">
+            <label for="scale_amount">Scale <span class="range-hint">0 – 1</span></label>
+            <div class="input-row">
+              <input type="number" id="scale_amount" value="0" min="0" max="1" step="0.05">
+              <span class="unit">x</span>
+            </div>
+            <span class="input-warn" id="scale_amount-warn"></span>
+          </div>
+          <div class="param-group" data-for="custom">
+            <label for="cycles">Cycles <span class="range-hint">1 – 10</span></label>
+            <div class="input-row">
+              <input type="number" id="cycles" value="1" min="1" max="10" step="1">
+            </div>
+            <span class="input-warn" id="cycles-warn"></span>
           </div>
         </div>
       </section>

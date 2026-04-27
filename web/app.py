@@ -34,13 +34,17 @@ TEMP_MAX_AGE = int(os.environ.get("HOPPERS_TMP_MAX_AGE", 300))  # 5 min default
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp", "gif", "bmp", "tiff"}
 MAX_FILES = 20
 
-# Parameter bounds: (min, max, default)
 PARAM_BOUNDS = {
-    "size":   (32,  512,  128),
-    "frames": (4,   60,   20),
-    "speed":  (0.1, 3.0,  0.7),
-    "height": (0,   64,   14),
-    "angle":  (0.0, 15.0, 3.5),
+    "size":         (32,   512,   128),
+    "frames":       (4,    60,    20),
+    "speed":        (0.1,  3.0,   0.7),
+    "height":       (0,    64,    14),
+    "angle":        (0.0,  15.0,  3.5),
+    "move_x":       (-64,  64,    0),
+    "move_y":       (-64,  64,    0),
+    "rotation":     (-180, 180,   0.0),
+    "scale_amount": (0.0,  1.0,   0.0),
+    "cycles":       (1,    10,    1),
 }
 
 
@@ -90,8 +94,17 @@ def parse_params(form) -> dict:
     speed = clamp(float(form.get("speed", 0.7)), *PARAM_BOUNDS["speed"][:2])
     height = clamp(int(form.get("height", 14)), *PARAM_BOUNDS["height"][:2])
     angle = clamp(float(form.get("angle", 3.5)), *PARAM_BOUNDS["angle"][:2])
+    move_x = clamp(int(form.get("move_x", 0)), *PARAM_BOUNDS["move_x"][:2])
+    move_y = clamp(int(form.get("move_y", 0)), *PARAM_BOUNDS["move_y"][:2])
+    rotation = clamp(float(form.get("rotation", 0.0)), *PARAM_BOUNDS["rotation"][:2])
+    scale_amount = clamp(float(form.get("scale_amount", 0.0)), *PARAM_BOUNDS["scale_amount"][:2])
+    cycles = clamp(int(form.get("cycles", 1)), *PARAM_BOUNDS["cycles"][:2])
 
-    return dict(fmt=fmt, animation=animation, size=size, frames=frames, speed=speed, height=height, angle=angle)
+    return dict(
+        fmt=fmt, animation=animation, size=size, frames=frames, speed=speed,
+        height=height, angle=angle,
+        move_x=move_x, move_y=move_y, rotation=rotation, scale_amount=scale_amount, cycles=cycles,
+    )
 
 
 @app.route("/")
@@ -156,6 +169,11 @@ def generate():
                 num_frames=params["frames"],
                 jump_height=params["height"],
                 max_angle=params["angle"],
+                move_x=params["move_x"],
+                move_y=params["move_y"],
+                rotation=params["rotation"],
+                scale_amount=params["scale_amount"],
+                cycles=params["cycles"],
             )
 
             if params["fmt"] == "apng":
